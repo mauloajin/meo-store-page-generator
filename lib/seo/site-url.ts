@@ -3,9 +3,5 @@ export function getSiteUrl(): string {
     return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
   }
 
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-
-  return "http://localhost:3000";
+  return "https://akasaka-kyosuke.vercel.app";
 }
