@@ -6,16 +6,31 @@ import { generateLocalBusinessJsonLd } from "@/lib/seo/structured-data";
 
 function formatOpeningHours(store: NormalizedStore): string | undefined {
   if (!store.openingHours?.length) return undefined;
-  const weekday = store.openingHours.slice(0, 5);
-  const weekend = store.openingHours.slice(5);
-  if (weekday.length === 5 && weekend.length >= 2 && store.openingHours.every((period) => period.opens === "17:30" && period.closes === "23:00")) {
-    return "月・火・水・木・金\n土・日・祝日・祝前日・祝後日\n17:30～23:00（L.O.22:00）";
-  }
   return store.openingHours.map((period) => {
     if (period.closed) return `${period.day}: 定休日`;
     if (period.opens && period.closes) return `${period.day}: ${period.opens}～${period.closes}`;
     return undefined;
   }).filter(Boolean).join("\n");
+}
+
+function shortOpeningHours(store: NormalizedStore): string {
+  const firstOpenPeriod = store.openingHours?.find((period) => !period.closed && period.opens && period.closes);
+  if (!firstOpenPeriod?.opens || !firstOpenPeriod.closes) return "店舗基本情報を確認";
+  const hasEvening = store.openingHours?.some((period) => period.opens === "17:00" && period.closes === "20:00");
+  return hasEvening ? "12:00～15:00 / 17:00～20:00" : `${firstOpenPeriod.opens}～${firstOpenPeriod.closes}`;
+}
+
+function heroLead(store: NormalizedStore): string {
+  if (store.id === "gbp-ochiizumibeya-osaka-sumo") {
+    return "Live sumo performances, Japanese dining, Chanko-nabe, and cultural explanations for international visitors in Izumisano, Osaka.";
+  }
+
+  return store.description ?? `${store.areaName ?? ""}で${store.businessType ?? "店舗情報"}を確認できる店舗ページです。`;
+}
+
+function publicAssetPath(path: string): string {
+  if (!path.startsWith("/")) return path;
+  return `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${path}`;
 }
 
 function infoRows(store: NormalizedStore): Array<{ label: string; value: ReactNode }> {
@@ -39,7 +54,7 @@ export function StoreDetail({ store }: { store: NormalizedStore }) {
   const content = generateStoreContent(store);
   const rows = infoRows(store);
   const jsonLd = generateLocalBusinessJsonLd(store);
-  const heroImage = store.photoUrls[0] ?? "/images/akasaka-kyosuke-hero.jpg";
+  const heroImage = publicAssetPath(store.photoUrls[0] ?? "/images/akasaka-kyosuke-hero.jpg");
   const openingHours = formatOpeningHours(store);
   return (
     <>
@@ -48,8 +63,9 @@ export function StoreDetail({ store }: { store: NormalizedStore }) {
         <div className="hero-shade"><div className="hero-content">
           <p className="eyebrow">{[store.areaName, store.businessType].filter(Boolean).join(" / ")}</p>
           <h1>{store.name}</h1>
-          <p className="hero-lead">赤坂で蕎麦会席と黒毛和牛しゃぶしゃぶを楽しめる、完全予約制の和食・日本料理店。</p>
+          <p className="hero-lead">{heroLead(store)}</p>
           <div className="hero-actions">
+            {store.reservationUrl ? <a className="button-link" href={store.reservationUrl} target="_blank" rel="noreferrer">予約する / Book</a> : null}
             {store.websiteUrl ? <a className="button-link" href={store.websiteUrl} target="_blank" rel="noreferrer">公式サイト</a> : null}
             {store.telephone ? <a className="button-link secondary" href={`tel:${store.telephone}`}>電話する</a> : null}
             {store.mapUrl ? <a className="button-link secondary" href={store.mapUrl} target="_blank" rel="noreferrer">地図を見る</a> : null}
@@ -59,10 +75,10 @@ export function StoreDetail({ store }: { store: NormalizedStore }) {
       <section className="quick-info" aria-label="店舗概要">
         <div><span>住所</span><strong>{store.address}</strong></div>
         <div><span>電話番号</span><strong>{store.telephone}</strong></div>
-        <div><span>営業時間</span><strong>{openingHours ? "17:30～23:00（L.O.22:00）" : "確認中"}</strong></div>
+        <div><span>営業時間</span><strong>{shortOpeningHours(store)}</strong></div>
       </section>
       <div className="page-wrap">
-        <section className="section intro-section" id="concept"><div><p className="eyebrow">Concept</p><h2 className="section-title">赤坂で味わう蕎麦会席と黒毛和牛しゃぶしゃぶ</h2></div><p className="large-text">{content.intro}</p></section>
+        <section className="section intro-section" id="concept"><div><p className="eyebrow">Concept</p><h2 className="section-title">{store.businessType ? `${store.areaName ?? ""}で体験する${store.businessType}` : "店舗の特徴"}</h2></div><p className="large-text">{content.intro}</p></section>
         {content.features.length ? <section className="section"><p className="eyebrow">Features</p><h2 className="section-title">店舗の特徴</h2><div className="feature-grid">{content.features.map((feature) => <article className="feature-card" key={feature}><span>{feature}</span></article>)}</div></section> : null}
         <section className="section split-section" id="access"><div><p className="eyebrow">Access</p><h2 className="section-title">アクセス</h2><p>{content.access}</p><div className="inline-actions">{store.mapUrl ? <a className="button-link" href={store.mapUrl} target="_blank" rel="noreferrer">Googleマップを開く</a> : null}{store.menuUrl ? <a className="button-link secondary" href={store.menuUrl} target="_blank" rel="noreferrer">メニューを見る</a> : null}</div></div><div className="address-panel"><span>Address</span><strong>{store.address}</strong></div></section>
         {content.faqs.length ? <section className="section"><p className="eyebrow">FAQ</p><h2 className="section-title">よくある質問</h2><div className="faq-list">{content.faqs.map((faq) => <article className="faq-item" key={faq.question}><h3>{faq.question}</h3><p>{faq.answer}</p></article>)}</div></section> : null}

@@ -4,8 +4,8 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "赤坂 蕎介｜蕎麦会席・黒毛和牛しゃぶしゃぶ", template: "%s" },
-  description: "赤坂 蕎介の店舗情報ページです。住所、電話番号、営業時間、公式サイト、地図情報を掲載しています。"
+  title: { default: "Store Information Pages", template: "%s" },
+  description: "店舗ごとの住所、電話番号、営業時間、公式サイト、地図情報を掲載しています。"
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -15,7 +15,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <div className="site-shell">
           <header className="site-header">
             <div className="header-inner">
-              <Link href="/" className="brand">赤坂 蕎介</Link>
+              <Link href="/" className="brand">Store Pages</Link>
               <nav className="nav" aria-label="主要ナビゲーション">
                 <a href="#concept">特徴</a>
                 <a href="#info">店舗情報</a>

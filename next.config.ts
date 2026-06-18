@@ -1,3 +1,12 @@
 import type { NextConfig } from "next";
-const nextConfig: NextConfig = { output: "standalone", async redirects() { return [{ source: "/stores/akasaka-sobasuke", destination: "/tokyo/akasaka/akasaka-kyosuke", permanent: true }, { source: "/stores/akasaka-kyosuke", destination: "/tokyo/akasaka/akasaka-kyosuke", permanent: true }]; } };
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
+const nextConfig: NextConfig = {
+  output: "export",
+  trailingSlash: true,
+  images: { unoptimized: true },
+  basePath,
+  assetPrefix: basePath || undefined
+};
+
 export default nextConfig;
