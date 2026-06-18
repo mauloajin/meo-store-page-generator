@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://mauloajin.github.io/meo-store-page-generator/sitemap.xml
