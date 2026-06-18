@@ -9,6 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const stores = await getStores();
   return [
     { url: baseUrl, lastModified: new Date() },
+    { url: `${baseUrl}/ochiizumibeya-osaka-sumo`, lastModified: new Date() },
     ...stores.map((store) => ({ url: `${baseUrl}${store.path}`, lastModified: new Date() }))
   ];
 }
